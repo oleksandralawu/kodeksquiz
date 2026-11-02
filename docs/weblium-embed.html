@@ -1,0 +1,23 @@
+<!-- Код вставки квізу «20 пасток Сімейного кодексу» для Weblium (елемент для HTML-коду на сторінці /kviz-simeyne-pravo).
+     HEADER_OFFSET — висота закріпленої (sticky) шапки сайту в пікселях; якщо шапка прокручується разом зі сторінкою, залиште 0. -->
+<iframe
+  id="kodeksquiz"
+  src="https://oleksandralawu.github.io/kodeksquiz/"
+  title="Квіз «20 пасток Сімейного кодексу»"
+  allow="clipboard-write; web-share"
+  style="display:block;width:100%;height:100vh;border:0;">
+</iframe>
+<script>
+(function () {
+  var HEADER_OFFSET = 0;
+  var f = document.getElementById("kodeksquiz");
+  var unit = (window.CSS && CSS.supports("height", "100svh")) ? "100svh" : "100vh";
+  f.style.height = "calc(" + unit + " - " + HEADER_OFFSET + "px)";
+  f.style.scrollMarginTop = HEADER_OFFSET + "px";
+  window.addEventListener("message", function (e) {
+    if (e.origin !== "https://oleksandralawu.github.io" || !e.data || e.data.source !== "kodeksquiz") return;
+    var top = f.getBoundingClientRect().top;
+    if (Math.abs(top - HEADER_OFFSET) > 2) f.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>

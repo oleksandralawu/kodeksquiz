@@ -5,6 +5,7 @@
 ## Структура
 - `index.html` — увесь квіз в одному файлі: стилі, маскот Кодик (SVG), логіка і банк питань.
 - `docs/vypravlena-redaktsiia-kvizu.docx` — затверджена редакція текстів (джерело правди для формулювань).
+- `docs/weblium-embed.html` — код вставки квізу у Weblium: iframe на висоту екрана + скрипт, що вирівнює сторінку за повідомленнями квізу (`notifyHost()` у index.html).
 - `simeynepravo-kviz-svitlyi.png` — картинка для соцмереж 1200×630 (og:image, twitter:image).
 - `tests/qa.py` — автотест (Playwright, 108 перевірок): `python3 tests/qa.py "$PWD/index.html"`.
 
@@ -27,7 +28,7 @@
 
 ## Відкриті питання
 - `QUIZ_URL` підтверджено: https://lawconsult.com.ua/kviz-simeyne-pravo.
-- Публікація: квіз розміщено на GitHub Pages (https://oleksandralawu.github.io/kodeksquiz/) і вбудовано через iframe у сайт на Weblium. `<link rel="canonical">` вказує на https://lawconsult.com.ua/kviz-simeyne-pravo. Щоб працювала кнопка «Скопіювати текст», iframe має мати `allow="clipboard-write; web-share"`. Без `web-share` Instagram на телефоні завантажить картинку замість відкриття меню «Поділитися».
+- Публікація: квіз розміщено на GitHub Pages (https://oleksandralawu.github.io/kodeksquiz/) і вбудовано через iframe у сайт на Weblium. `<link rel="canonical">` вказує на https://lawconsult.com.ua/kviz-simeyne-pravo. Код вставки — лише з `docs/weblium-embed.html`. Щоб працювала кнопка «Скопіювати текст», iframe має мати `allow="clipboard-write; web-share"`. Без `web-share` Instagram на телефоні завантажить картинку замість відкриття меню «Поділитися».
 - Папки `docs/` і `tests/` додано в репозиторій. Правки 1.8, 4.5 і 5.7 поки не перенесено в docx.
 - Створити на сторінці сімейного права якорі: #shlyubnyi-dohovir, #podil-mayna, #rozluchennya, #alimenty, #dity, #za-kordonom, #konsultatsiya.
 - Звірити пункти чек-листа з docx (2.3, 4.4, 5.8 тощо) і оновити дату редакції.

@@ -515,7 +515,9 @@ S = fresh();
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pick = arr => arr[Math.floor(Math.random()*arr.length)];
 
-function go(screen){ if (screen === "q" && !S.qs.length) S.qs = buildRun(); S.screen = screen; closeExplain(); render(); window.scrollTo(0,0); }
+/* Коли квіз вбудовано через iframe, повідомляємо сторінці сайту про зміну екрана — код вставки прокручує сторінку так, щоб квіз займав увесь екран. Жодних даних користувача не передається. */
+function notifyHost(screen){ try { if (window.parent !== window) window.parent.postMessage({ source: "kodeksquiz", type: "screen", screen }, "*"); } catch(e) {} }
+function go(screen){ if (screen === "q" && !S.qs.length) S.qs = buildRun(); S.screen = screen; closeExplain(); render(); window.scrollTo(0,0); notifyHost(screen); }
 
 function render(){
   if (S.screen === "start") return renderStart();
@@ -607,6 +609,7 @@ function answer(k){
   st.classList.toggle("on", S.streak >= 3);
   document.getElementById("streak-n").textContent = S.streak;
   openExplain(q, ok);
+  notifyHost("answer");
 }
 
 function openExplain(q, ok){
@@ -671,6 +674,7 @@ function openSheet(q){
     </div>
   </div>`;
   sheetEl.classList.add("open");
+  notifyHost("sheet");
   document.getElementById("sheet-cta").onclick = () => track("quiz_consult_click", { place: "sheet", q_id: q.id });
   const close = () => { sheetEl.classList.remove("open"); const n = document.getElementById("next"); if (n) n.focus({preventScroll:true}); };
   document.getElementById("sheet-x").onclick = close;
@@ -776,7 +780,7 @@ function renderFinal(){
   } catch(e) { const box = document.getElementById("qr"); if (box) box.remove(); }
   track("quiz_complete", { score: R.ok, pct: R.pct, blind: R.blinds.join(",") || "none", situation: S.situation || "skip" });
   document.getElementById("final-cta").onclick = () => track("quiz_consult_click", { place: "final", blind: R.blinds[0] || "none", situation: S.situation || "skip" });
-  document.getElementById("again").onclick = () => { track("quiz_restart"); S = fresh(); S.screen = "situation"; render(); window.scrollTo(0,0); };
+  document.getElementById("again").onclick = () => { track("quiz_restart"); S = fresh(); S.screen = "situation"; render(); window.scrollTo(0,0); notifyHost("situation"); };
   document.getElementById("copy").onclick = () => {
     track("quiz_share_copy");
     const text = `${R.arch}. ${storyLine} Пройди «20 пасток Сімейного кодексу»: ${QUIZ_URL}`;
