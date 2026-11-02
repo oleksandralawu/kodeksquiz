@@ -13,7 +13,7 @@
 - `QUESTIONS` — 60 питань (по 12 на тему): id, block, type, diff, trap, sensitive, help, situation, options, correct, short, full, norm, cta.
 - `SITUATIONS` — вибір ситуації на старті: підказка й кнопка фіналу.
 - `CONSULT_URL`, `consultLink()` — посилання на консультацію: якір + utm_source=kviz, utm_content=q<id> або final_…
-- `QUIZ_URL` — адреса квізу для QR і картки сторіс: https://lawconsult.com.ua/kviz (підтверджено).
+- `QUIZ_URL` — адреса квізу для QR і картки сторіс: https://lawconsult.com.ua/kviz-simeyne-pravo (підтверджено).
 - `GA_ID` — ID Google Analytics 4, якщо на сайті немає GA/GTM. Події: quiz_start, quiz_situation, quiz_answer, quiz_more, quiz_cheer, quiz_consult_click, quiz_complete, quiz_share_copy, quiz_share (network: instagram/facebook/threads/linkedin/telegram/whatsapp), quiz_sound, quiz_restart.
 - Поширення: кнопки Instagram, Facebook, Threads, LinkedIn, Telegram, WhatsApp на фіналі; посилання з utm_source=<мережа>&utm_medium=social. Картинку для сторіс 1080×1920 малює `makeStoryImage()`.
 - Звуки: `sfx()` синтезує їх через Web Audio, без файлів. Звучать на правильну відповідь і помилку (окрім `sensitive`), на екрані «Суд іде» і на результаті. Перемикач звуку — у панелі питання.
@@ -26,8 +26,8 @@
 - Після змін — запускати `tests/qa.py`; файл має лишатися одним самодостатнім HTML.
 
 ## Відкриті питання
-- `QUIZ_URL` підтверджено: https://lawconsult.com.ua/kviz.
-- Публікація: квіз розміщено на GitHub Pages (https://oleksandralawu.github.io/kodeksquiz/) і вбудовано через iframe у сайт на Weblium. `<link rel="canonical">` вказує на https://lawconsult.com.ua/kviz. Щоб працювала кнопка «Скопіювати текст», iframe має мати `allow="clipboard-write; web-share"`. Без `web-share` Instagram на телефоні завантажить картинку замість відкриття меню «Поділитися».
+- `QUIZ_URL` підтверджено: https://lawconsult.com.ua/kviz-simeyne-pravo.
+- Публікація: квіз розміщено на GitHub Pages (https://oleksandralawu.github.io/kodeksquiz/) і вбудовано через iframe у сайт на Weblium. `<link rel="canonical">` вказує на https://lawconsult.com.ua/kviz-simeyne-pravo. Щоб працювала кнопка «Скопіювати текст», iframe має мати `allow="clipboard-write; web-share"`. Без `web-share` Instagram на телефоні завантажить картинку замість відкриття меню «Поділитися».
 - Папки `docs/` і `tests/` додано в репозиторій. Правки 1.8, 4.5 і 5.7 поки не перенесено в docx.
 - Створити на сторінці сімейного права якорі: #shlyubnyi-dohovir, #podil-mayna, #rozluchennya, #alimenty, #dity, #za-kordonom, #konsultatsiya.
 - Звірити пункти чек-листа з docx (2.3, 4.4, 5.8 тощо) і оновити дату редакції.

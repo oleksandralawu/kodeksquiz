@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>20 пасток Сімейного кодексу</title>
 <meta name="description" content="Освітній квіз адвоката: шлюбний договір, поділ майна, розлучення, аліменти, діти. 5 хвилин, без реєстрації.">
-<link rel="canonical" href="https://lawconsult.com.ua/kviz">
+<link rel="canonical" href="https://lawconsult.com.ua/kviz-simeyne-pravo">
 <meta name="theme-color" content="#6C4CF5">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="uk_UA">
 <meta property="og:site_name" content="Адвокатське бюро Олександри Стасюк">
 <meta property="og:title" content="20 пасток Сімейного кодексу — перевір себе">
 <meta property="og:description" content="Освітній квіз адвоката: шлюбний договір, поділ майна, розлучення, аліменти, діти. 5 хвилин, без реєстрації.">
-<meta property="og:url" content="https://lawconsult.com.ua/kviz">
+<meta property="og:url" content="https://lawconsult.com.ua/kviz-simeyne-pravo">
 <meta property="og:image" content="https://oleksandralawu.github.io/kodeksquiz/simeynepravo-kviz-svitlyi.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -278,7 +278,7 @@ const CONSULT_URL = "https://lawconsult.com.ua/home/simeyne-pravo";
 /* Посилання на консультацію: якір потрібної послуги + UTM-мітки, щоб бачити, які пастки приводять заявки. */
 const consultLink = (anchor, content) => `${CONSULT_URL}?utm_source=kviz&utm_medium=quiz&utm_content=${encodeURIComponent(content)}#${anchor}`;
 /* Адреса сторінки квізу на сайті — для QR-коду й тексту на картці для сторіс. Змініть, якщо квіз стоятиме за іншою адресою. */
-const QUIZ_URL = "https://lawconsult.com.ua/kviz";
+const QUIZ_URL = "https://lawconsult.com.ua/kviz-simeyne-pravo";
 
 /* Анонімна аналітика. Якщо на сайті вже стоїть Google Analytics 4 або Google Tag Manager — нічого міняти не треба.
    Якщо GA4 на сторінці немає — вставте ID потоку даних, наприклад "G-ABC123XYZ". Персональні дані не передаються. */
@@ -835,8 +835,9 @@ async function makeStoryImage(arch, line){
   } catch(e) {}
   let y = wrap(arch, 960, 92, 700, 1.12);
   wrap(line, y + 30, 54, 600, 1.3);
-  x.font = `700 42px ${F}`; x.fillText("Пройди квіз:", 80, 1540); x.fillText(QUIZ_URL.replace(/^https?:\/\//, ""), 80, 1598);
-  x.globalAlpha = .85; x.font = `500 32px ${F}`; x.fillText("Адвокатське бюро Олександри Стасюк", 80, 1680); x.globalAlpha = 1;
+  x.font = `700 42px ${F}`; x.fillText("Пройди квіз:", 80, 1500);
+  QUIZ_URL.replace(/^https?:\/\//, "").replace("/", "/\n").split("\n").forEach((r, i) => x.fillText(r, 80, 1556 + i * 54));
+  x.globalAlpha = .85; x.font = `500 32px ${F}`; x.fillText("Адвокатське бюро Олександри Стасюк", 80, 1690); x.globalAlpha = 1;
   try {
     if (typeof window.qrcode === "function") {
       const qr = qrcode(0, "M"); qr.addData(QUIZ_URL); qr.make();
