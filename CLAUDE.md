@@ -12,7 +12,7 @@
 - `QUESTIONS` — 60 питань (по 12 на тему): id, block, type, diff, trap, sensitive, help, situation, options, correct, short, full, norm, cta.
 - `SITUATIONS` — вибір ситуації на старті: підказка й кнопка фіналу.
 - `CONSULT_URL`, `consultLink()` — посилання на консультацію: якір + utm_source=kviz, utm_content=q<id> або final_…
-- `QUIZ_URL` — адреса квізу для QR і картки сторіс (підтвердити перед публікацією).
+- `QUIZ_URL` — адреса квізу для QR і картки сторіс: https://lawconsult.com.ua/kviz (підтверджено).
 - `GA_ID` — ID Google Analytics 4, якщо на сайті немає GA/GTM. Події: quiz_start, quiz_situation, quiz_answer, quiz_more, quiz_cheer, quiz_consult_click, quiz_complete, quiz_share_copy, quiz_restart.
 
 ## Правила редагування
@@ -23,6 +23,9 @@
 - Після змін — запускати `tests/qa.py`; файл має лишатися одним самодостатнім HTML.
 
 ## Відкриті питання
-- Підтвердити `QUIZ_URL`.
+- `QUIZ_URL` підтверджено: https://lawconsult.com.ua/kviz.
+- Публікація: квіз розміщено на GitHub Pages (https://oleksandralawu.github.io/kodeksquiz/) і вбудовано через iframe у сайт на Weblium. `<link rel="canonical">` вказує на https://lawconsult.com.ua/kviz. Щоб працювала кнопка «Скопіювати текст», iframe має мати `allow="clipboard-write"`.
+- Додати в корінь репозиторію картинку для соцмереж `simeynepravo-kviz-svitlyi.png` (1200×630). На неї посилаються og:image і twitter:image, але файлу поки немає.
+- Папки `docs/` і `tests/` додано в репозиторій. Правки 1.8, 4.5 і 5.7 поки не перенесено в docx.
 - Створити на сторінці сімейного права якорі: #shlyubnyi-dohovir, #podil-mayna, #rozluchennya, #alimenty, #dity, #za-kordonom, #konsultatsiya.
 - Звірити пункти чек-листа з docx (2.3, 4.4, 5.8 тощо) і оновити дату редакції.
