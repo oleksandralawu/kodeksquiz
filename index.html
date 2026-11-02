@@ -788,9 +788,9 @@ function renderFinal(){
       navigator.clipboard.writeText(text).then(() => toast("Текст скопійовано"), () => toast("Не вдалося скопіювати — виділи текст на картці"));
     } catch(e){ toast("Не вдалося скопіювати — виділи текст на картці"); }
   };
-  /* Поширення картинкою з результатом. Instagram, Facebook і LinkedIn не приймають картинку через вебпосилання, тому:
-     на телефоні — системне меню «Поділитися» з картинкою (там людина обирає застосунок);
-     на комп'ютері — картинка завантажується, а для Facebook і LinkedIn відкривається вікно допису з посиланням на квіз. */
+  /* Поширення картинкою з результатом. Соцмережі й месенджери не приймають картинку через вебпосилання, тому:
+     на телефоні — системне меню «Поділитися» з картинкою й текстом (там людина обирає застосунок);
+     на комп'ютері — картинка завантажується, а вікно допису чи чату відкривається з посиланням на квіз. */
   const imgs = {};
   makeStoryImage(R.arch, storyLine, "story").then(b => { imgs.story = b; }).catch(() => {});
   makeStoryImage(R.arch, storyLine, "post").then(b => { imgs.post = b; }).catch(() => {});
@@ -802,7 +802,7 @@ function renderFinal(){
   const shareImage = (net, kind, e) => {
     track("quiz_share", { network: net, score: R.ok });
     const blob = imgs[kind], link = e && e.currentTarget && e.currentTarget.href;
-    const name = net === "instagram" ? "Instagram" : net === "facebook" ? "Facebook" : "LinkedIn";
+    const name = { instagram: "Instagram", facebook: "Facebook", linkedin: "LinkedIn", threads: "Threads", telegram: "Telegram", whatsapp: "WhatsApp" }[net];
     if (!blob) { if (!link) { if (e) e.preventDefault(); toast("Зроби скриншот картки й поділися ним"); } return; }
     const file = new File([blob], kind === "story" ? "kodeks-kviz-storis.png" : "kodeks-kviz-rezultat.png", { type: "image/png" });
     if (mobile && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -813,12 +813,11 @@ function renderFinal(){
       });
       return;
     }
-    try { download(blob, file.name); toast(net === "instagram" ? "Картинку збережено — додай її в сторіс Instagram" : `Картинку збережено — перетягни її в допис ${name}`); }
+    try { download(blob, file.name); toast(net === "instagram" ? "Картинку збережено — додай її в сторіс Instagram" : `Картинку збережено — перетягни її в ${net === "telegram" || net === "whatsapp" ? "чат" : "допис"} ${name}`); }
     catch(_) { toast("Зроби скриншот картки й поділися ним"); }
   };
   document.getElementById("sh-instagram").onclick = e => shareImage("instagram", "story", e);
-  ["facebook", "linkedin"].forEach(net => document.getElementById("sh-" + net).onclick = e => shareImage(net, "post", e));
-  ["threads", "telegram", "whatsapp"].forEach(net => document.getElementById("sh-" + net).onclick = () => track("quiz_share", { network: net, score: R.ok }));
+  ["facebook", "linkedin", "threads", "telegram", "whatsapp"].forEach(net => document.getElementById("sh-" + net).onclick = e => shareImage(net, "post", e));
   app.querySelector(".score-big").focus({preventScroll:true});
   sfx(R.pct >= 40 ? "result" : "result-soft");
   if (R.pct >= 80 && !reduceMotion) confetti();
