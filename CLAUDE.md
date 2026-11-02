@@ -16,7 +16,7 @@
 - `CONSULT_URL`, `consultLink()` — посилання на консультацію: якір + utm_source=kviz, utm_content=q<id> або final_…
 - `QUIZ_URL` — адреса квізу для QR і картки сторіс: https://lawconsult.com.ua/kviz-simeyne-pravo (підтверджено).
 - `GA_ID` — ID Google Analytics 4, якщо на сайті немає GA/GTM. Події: quiz_start, quiz_situation, quiz_answer, quiz_more, quiz_cheer, quiz_consult_click, quiz_complete, quiz_share_copy, quiz_share (network: instagram/facebook/threads/linkedin/telegram/whatsapp), quiz_sound, quiz_restart.
-- Поширення: кнопки Instagram, Facebook, Threads, LinkedIn, Telegram, WhatsApp на фіналі; посилання з utm_source=<мережа>&utm_medium=social. Картинку для сторіс 1080×1920 малює `makeStoryImage()`.
+- Поширення: кнопки Instagram, Facebook, Threads, LinkedIn, Telegram, WhatsApp на фіналі; посилання з utm_source=<мережа>&utm_medium=social. Картинку з результатом малює `makeStoryImage(arch, line, fmt)`: "story" 1080×1920 для Instagram, "post" 1080×1350 для Facebook і LinkedIn. На телефоні ці три кнопки відкривають системне меню «Поділитися» з картинкою; на комп'ютері картинка завантажується (для Facebook і LinkedIn ще відкривається вікно допису). Telegram, WhatsApp і Threads поширюють текст із посиланням.
 - Звуки: `sfx()` синтезує їх через Web Audio, без файлів. Звучать на правильну відповідь і помилку (окрім `sensitive`), на екрані «Суд іде» і на результаті. Перемикач звуку — у панелі питання.
 
 ## Правила редагування

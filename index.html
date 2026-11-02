@@ -788,38 +788,51 @@ function renderFinal(){
       navigator.clipboard.writeText(text).then(() => toast("Текст скопійовано"), () => toast("Не вдалося скопіювати — виділи текст на картці"));
     } catch(e){ toast("Не вдалося скопіювати — виділи текст на картці"); }
   };
-  /* Поширення. Facebook і LinkedIn приймають лише посилання — текст копіюємо, щоб його можна було вставити в допис. */
-  const copyQuiet = (text, msg) => { try { navigator.clipboard.writeText(text).then(() => toast(msg), () => {}); } catch(e) {} };
-  ["facebook", "linkedin"].forEach(net => document.getElementById("sh-" + net).onclick = () => {
-    track("quiz_share", { network: net, score: R.ok }); copyQuiet(shareText + " " + shareUrl(net), "Текст скопійовано — встав його в допис");
-  });
-  ["threads", "telegram", "whatsapp"].forEach(net => document.getElementById("sh-" + net).onclick = () => track("quiz_share", { network: net, score: R.ok }));
-  /* Instagram не має веб-посилання для поширення: на телефоні відкриваємо системне меню з картинкою для сторіс, на комп'ютері — завантажуємо картинку. */
-  let storyBlob = null;
-  makeStoryImage(R.arch, storyLine).then(b => { storyBlob = b; }).catch(() => {});
-  document.getElementById("sh-instagram").onclick = async () => {
-    track("quiz_share", { network: "instagram", score: R.ok });
-    if (!storyBlob) { toast("Зроби скриншот картки й додай його в сторіс"); return; }
-    const file = new File([storyBlob], "kodeks-kviz-rezultat.png", { type: "image/png" });
-    const mobile = window.matchMedia("(pointer: coarse)").matches;
-    if (mobile && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], text: shareText + " " + shareUrl("instagram") }); return; }
-      catch(e) { if (e && e.name === "AbortError") return; }
-    }
-    try {
-      const a = document.createElement("a"); a.href = URL.createObjectURL(storyBlob); a.download = file.name;
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      toast("Картинку збережено — додай її в сторіс Instagram");
-    } catch(e) { toast("Зроби скриншот картки й додай його в сторіс"); }
+  /* Поширення картинкою з результатом. Instagram, Facebook і LinkedIn не приймають картинку через вебпосилання, тому:
+     на телефоні — системне меню «Поділитися» з картинкою (там людина обирає застосунок);
+     на комп'ютері — картинка завантажується, а для Facebook і LinkedIn відкривається вікно допису з посиланням на квіз. */
+  const imgs = {};
+  makeStoryImage(R.arch, storyLine, "story").then(b => { imgs.story = b; }).catch(() => {});
+  makeStoryImage(R.arch, storyLine, "post").then(b => { imgs.post = b; }).catch(() => {});
+  const mobile = window.matchMedia("(pointer: coarse)").matches;
+  const download = (blob, name) => {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   };
+  const shareImage = (net, kind, e) => {
+    track("quiz_share", { network: net, score: R.ok });
+    const blob = imgs[kind], link = e && e.currentTarget && e.currentTarget.href;
+    const name = net === "instagram" ? "Instagram" : net === "facebook" ? "Facebook" : "LinkedIn";
+    if (!blob) { if (!link) { if (e) e.preventDefault(); toast("Зроби скриншот картки й поділися ним"); } return; }
+    const file = new File([blob], kind === "story" ? "kodeks-kviz-storis.png" : "kodeks-kviz-rezultat.png", { type: "image/png" });
+    if (mobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (e) e.preventDefault();
+      navigator.share({ files: [file], text: shareText + " " + shareUrl(net) }).catch(err => {
+        if (err && err.name === "AbortError") return;
+        try { download(blob, file.name); toast(`Картинку збережено — додай її в ${name}`); } catch(_) { toast("Зроби скриншот картки й поділися ним"); }
+      });
+      return;
+    }
+    try { download(blob, file.name); toast(net === "instagram" ? "Картинку збережено — додай її в сторіс Instagram" : `Картинку збережено — перетягни її в допис ${name}`); }
+    catch(_) { toast("Зроби скриншот картки й поділися ним"); }
+  };
+  document.getElementById("sh-instagram").onclick = e => shareImage("instagram", "story", e);
+  ["facebook", "linkedin"].forEach(net => document.getElementById("sh-" + net).onclick = e => shareImage(net, "post", e));
+  ["threads", "telegram", "whatsapp"].forEach(net => document.getElementById("sh-" + net).onclick = () => track("quiz_share", { network: net, score: R.ok }));
   app.querySelector(".score-big").focus({preventScroll:true});
   sfx(R.pct >= 40 ? "result" : "result-soft");
   if (R.pct >= 80 && !reduceMotion) confetti();
 }
 
-/* Картинка для сторіс 1080×1920 — та сама картка, що на фіналі, намальована на canvas. Нижні ~250 px вільні: там у сторіс поле відповіді. */
-async function makeStoryImage(arch, line){
-  const W = 1080, H = 1920, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+/* Картинка з результатом, намальована на canvas: "story" — 1080×1920 для сторіс (нижні ~250 px вільні: там поле відповіді),
+   "post" — 1080×1350 (4:5) для стрічки Facebook і LinkedIn. */
+const IMG_LAYOUT = {
+  story: { H: 1920, label: 150, mascot: [200, 680], arch: 960, cta: 1500, brand: 1690, qr: [1440, 220] },
+  post:  { H: 1350, label: 110, mascot: [130, 480], arch: 700, cta: 1100, brand: 1290, qr: [1090, 180] }
+};
+async function makeStoryImage(arch, line, fmt = "story"){
+  const L = IMG_LAYOUT[fmt];
+  const W = 1080, H = L.H, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const x = cv.getContext("2d"); if (!x) throw new Error("no canvas");
   try { await document.fonts.ready; } catch(e) {}
   const load = src => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; });
@@ -831,21 +844,21 @@ async function makeStoryImage(arch, line){
     for (const w of words) { const t = row ? row + " " + w : w; if (x.measureText(t).width > W - 160 && row) { x.fillText(row, 80, y); y += size * lh; row = w; } else row = t; }
     if (row) { x.fillText(row, 80, y); y += size * lh; } return y;
   };
-  x.globalAlpha = .9; x.font = `600 40px "JetBrains Mono", ${F}`; x.fillText("20 пасток Сімейного кодексу", 80, 150); x.globalAlpha = 1;
+  x.globalAlpha = .9; x.font = `600 40px "JetBrains Mono", ${F}`; x.fillText("20 пасток Сімейного кодексу", 80, L.label); x.globalAlpha = 1;
   try {
     const svg = kodyk("judge", 158).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ');
     const im = await load("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg));
-    x.drawImage(im, (W - 680) / 2, 200, 680, 680);
+    x.drawImage(im, (W - L.mascot[1]) / 2, L.mascot[0], L.mascot[1], L.mascot[1]);
   } catch(e) {}
-  let y = wrap(arch, 960, 92, 700, 1.12);
+  let y = wrap(arch, L.arch, 92, 700, 1.12);
   wrap(line, y + 30, 54, 600, 1.3);
-  x.font = `700 42px ${F}`; x.fillText("Пройди квіз:", 80, 1500);
-  QUIZ_URL.replace(/^https?:\/\//, "").replace("/", "/\n").split("\n").forEach((r, i) => x.fillText(r, 80, 1556 + i * 54));
-  x.globalAlpha = .85; x.font = `500 32px ${F}`; x.fillText("Адвокатське бюро Олександри Стасюк", 80, 1690); x.globalAlpha = 1;
+  x.font = `700 42px ${F}`; x.fillText("Пройди квіз:", 80, L.cta);
+  QUIZ_URL.replace(/^https?:\/\//, "").replace("/", "/\n").split("\n").forEach((r, i) => x.fillText(r, 80, L.cta + 56 + i * 54));
+  x.globalAlpha = .85; x.font = `500 32px ${F}`; x.fillText("Адвокатське бюро Олександри Стасюк", 80, L.brand); x.globalAlpha = 1;
   try {
     if (typeof window.qrcode === "function") {
       const qr = qrcode(0, "M"); qr.addData(QUIZ_URL); qr.make();
-      const im = await load(qr.createDataURL(8, 0)), s = 220, qx = W - 80 - s, qy = 1440;
+      const im = await load(qr.createDataURL(8, 0)), s = L.qr[1], qx = W - 80 - s, qy = L.qr[0];
       x.fillStyle = "#fff"; x.beginPath(); x.roundRect ? x.roundRect(qx - 16, qy - 16, s + 32, s + 32, 24) : x.rect(qx - 16, qy - 16, s + 32, s + 32); x.fill();
       x.imageSmoothingEnabled = false; x.drawImage(im, qx, qy, s, s);
     }
